@@ -26,3 +26,10 @@ Ask natural questions about clauses
 Local LLM-based QA
 
 Predefined buttons for key clauses (Termination, Confidentiality, Jurisdiction, etc.)
+
+🏁 To Run the App:
+bash
+Copy
+Edit
+pip install -r requirements.txt
+streamlit run app.py
