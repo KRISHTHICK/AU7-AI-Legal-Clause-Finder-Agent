@@ -1,0 +1,36 @@
+import streamlit as st
+from document_reader import extract_text_from_docx, extract_text_from_pdf
+from agent import run_ollama_query
+from prompt_template import build_prompt
+
+st.set_page_config(page_title="AI Legal Clause Agent", layout="wide")
+st.title("📄 AI Legal Clause Finder Agent")
+
+uploaded_file = st.file_uploader("Upload Legal Document (.pdf or .docx)", type=["pdf", "docx"])
+doc_text = ""
+
+if uploaded_file:
+    if uploaded_file.name.endswith(".pdf"):
+        with open("temp.pdf", "wb") as f:
+            f.write(uploaded_file.read())
+        doc_text = extract_text_from_pdf("temp.pdf")
+    elif uploaded_file.name.endswith(".docx"):
+        with open("temp.docx", "wb") as f:
+            f.write(uploaded_file.read())
+        doc_text = extract_text_from_docx("temp.docx")
+
+    st.success("Document uploaded and text extracted!")
+
+    query = st.text_input("Ask a question (e.g., What is the termination clause?)")
+
+    clause_buttons = ["Termination Clause", "Confidentiality", "Jurisdiction", "Payment Terms"]
+    selected_clause = st.radio("Or pick a clause", clause_buttons)
+
+    final_query = query or selected_clause
+
+    if final_query and st.button("🧠 Find Clause"):
+        prompt = build_prompt(doc_text, final_query)
+        with st.spinner("Thinking..."):
+            answer = run_ollama_query(prompt)
+        st.markdown("### 📝 Answer:")
+        st.write(answer)
